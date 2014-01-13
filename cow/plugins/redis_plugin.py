@@ -30,12 +30,13 @@ class RedisPlugin(BasePlugin):
     def after_start(cls, application, io_loop=None, *args, **kw):
         host = application.config.get('REDISHOST')
         port = application.config.get('REDISPORT')
+        db = application.config.get('REDISDB', 1)
 
-        logging.info("Connecting to redis at %s:%d" % (host, port))
+        logging.info("Connecting to redis at %s:%d/%d" % (host, port, db))
 
         application.redis = Client(io_loop=io_loop)
         application.redis.authenticated = False
-        application.redis.connect(host, port, callback=cls.has_connected(application))
+        application.redis.connect(host, port, db=db, callback=cls.has_connected(application))
 
     @classmethod
     def before_end(cls, application, *args, **kw):
